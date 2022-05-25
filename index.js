@@ -34,6 +34,11 @@ async function run() {
       const part = await partCollection.findOne(query);
       res.send(part);
     });
+    app.post("/review", async (req, res) => {
+      const review = req.body;
+      const result = await partCollection.insertOne(review);
+      res.send(result);
+    });
   } finally {
   }
 }
