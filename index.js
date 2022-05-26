@@ -21,6 +21,8 @@ async function run() {
   try {
     await client.connect();
     const partCollection = client.db("bike_parts").collection("parts");
+    const reviewCollection = client.db("bike_review").collection("review");
+    const userCollection = client.db("parts_user").collection("user");
 
     app.get("/part", async (req, res) => {
       const query = {};
@@ -28,16 +30,42 @@ async function run() {
       const parts = await cursor.toArray();
       res.send(parts);
     });
+    app.get("/parts", async (req, res) => {
+      const query = {};
+      const result = await partCollection.find(query).toArray();
+      res.send(result);
+    });
     app.get("/part/:id", async (req, res) => {
       const id = req.params.id;
       const query = { _id: ObjectId(id) };
       const part = await partCollection.findOne(query);
       res.send(part);
     });
+    app.delete("/part/:id", async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: ObjectId(id) };
+      const result = await partCollection.deleteOne(query);
+      res.send(result);
+    });
+    app.put("/user/:email", async (req, res) => {
+      const email = req.params.email;
+      const user = req.body;
+      const filter = { email: email };
+      const options = { upsert: true };
+      const updateDoc = { $set: user };
+      const resut = await userCollection.updateOne(filter, updateDoc, options);
+      res.send(resut);
+    });
     app.post("/review", async (req, res) => {
       const review = req.body;
-      const result = await partCollection.insertOne(review);
+      const result = await reviewCollection.insertOne(review);
       res.send(result);
+    });
+    app.get("/review", async (req, res) => {
+      const query = {};
+      const cursor = await reviewCollection.find(query).toArray();
+
+      res.send(cursor);
     });
   } finally {
   }
