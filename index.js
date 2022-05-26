@@ -125,6 +125,16 @@ async function run() {
 
       res.send(result);
     });
+    app.put("/orders/:id", async (req, res) => {
+      const id = req.params.id;
+      const status = req.body;
+      const filter = { _id: ObjectId(id) };
+      const updateDoc = {
+        $set: status,
+      };
+      const result = await ordersCollection.updateOne(filter, updateDoc);
+      res.send(result);
+    });
     app.delete("/order/:id", verifyToken, async (req, res) => {
       const id = req.params.id;
       const query = { _id: ObjectId(id) };
