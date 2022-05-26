@@ -25,6 +25,25 @@ async function run() {
     const reviewCollection = client.db("bike_review").collection("review");
     const userCollection = client.db("parts_user").collection("user");
 
+    function verifyJWT(req, res, next) {
+      const authHeader = req.headers.authorization;
+      if (!authHeader) {
+        return res.status(401).send({ message: "UnAuthorized access" });
+      }
+      const token = authHeader.split(" ")[1];
+      jwt.verify(
+        token,
+        process.env.ACCESS_TOKEN_SECRET,
+        function (err, decoded) {
+          if (err) {
+            return res.status(403).send({ message: "Forbidden access" });
+          }
+          req.decoded = decoded;
+          next();
+        }
+      );
+    }
+
     app.get("/part", async (req, res) => {
       const query = {};
       const cursor = partCollection.find(query);
@@ -34,6 +53,11 @@ async function run() {
     app.get("/parts", async (req, res) => {
       const query = {};
       const result = await partCollection.find(query).toArray();
+      res.send(result);
+    });
+    app.post("/parts", async (req, res) => {
+      const parts = req.body;
+      const result = await partCollection.insertOne(parts);
       res.send(result);
     });
     app.get("/part/:id", async (req, res) => {
@@ -53,9 +77,20 @@ async function run() {
       const user = req.body;
       const filter = { email: email };
       const options = { upsert: true };
-      const updateDoc = { $set: user };
-      const resut = await userCollection.updateOne(filter, updateDoc, options);
-      res.send(resut);
+      const updateDoc = {
+        $set: user,
+      };
+      const result = await userCollection.updateOne(filter, updateDoc, options);
+      const token = jwt.sign({ email: email }, process.env.ACCESS_TOKEN, {
+        expiresIn: "1h",
+      });
+      res.send({ result, token });
+    });
+    app.get("/admin/:email", async (req, res) => {
+      const email = req.params.email;
+      const user = await userCollection.findOne({ email: email });
+      const isAdmin = user.role === "admin";
+      res.send({ admin: isAdmin });
     });
     app.post("/review", async (req, res) => {
       const review = req.body;
