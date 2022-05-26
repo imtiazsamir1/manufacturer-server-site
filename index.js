@@ -24,6 +24,8 @@ async function run() {
     const partCollection = client.db("bike_parts").collection("parts");
     const reviewCollection = client.db("bike_review").collection("review");
     const userCollection = client.db("parts_user").collection("user");
+    const payCollection = client.db("parts_pay").collection("payment");
+    const orderCollection = client.db("parts_order").collection("orders");
 
     function verifyJWT(req, res, next) {
       const authHeader = req.headers.authorization;
@@ -102,6 +104,43 @@ async function run() {
       const cursor = await reviewCollection.find(query).toArray();
 
       res.send(cursor);
+    });
+    app.put("/order/:id", async (req, res) => {
+      const id = req.params.id;
+      const payment = req.body;
+
+      const filter = { _id: ObjectId(id) };
+      const updateDoc = {
+        $set: payment,
+      };
+
+      const result = await orderCollection.updateOne(filter, updateDoc);
+
+      res.send(result);
+    });
+    app.post("/payment", async (req, res) => {
+      const payment = req.body;
+      const result = await payCollection.insertOne(payment);
+      res.send(result);
+    });
+    app.post("/create-payment-intent", verifyToken, async (req, res) => {
+      const service = req.body;
+      const price = await service.price;
+      const amount = price * 100;
+
+      if (amount) {
+        const paymentIntent = await stripe.paymentIntents.create({
+          amount: amount,
+          currency: "usd",
+          payment_method_types: ["card"],
+        });
+
+        res.send({
+          clientSecret: paymentIntent.client_secret,
+        });
+      } else {
+        res.send("Something wrong");
+      }
     });
   } finally {
   }
