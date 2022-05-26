@@ -74,6 +74,13 @@ async function run() {
       const result = await partCollection.deleteOne(query);
       res.send(result);
     });
+    app.get("/parts/:id", async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: ObjectId(id) };
+
+      const result = await partCollection.findOne(query);
+      res.send(result);
+    });
     app.put("/user/:email", async (req, res) => {
       const email = req.params.email;
       const user = req.body;
@@ -118,6 +125,20 @@ async function run() {
 
       res.send(result);
     });
+    app.delete("/order/:id", verifyToken, async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: ObjectId(id) };
+      const result = await orderCollection.deleteOne(query);
+      res.send(result);
+    });
+    app.get("/order", async (req, res) => {
+      const email = req.query.email;
+
+      const decodedEmail = req.decoded?.email(decodedEmail === email);
+      const query = { email: email };
+      const result = await ordersCollection.find(query).toArray();
+      res.send(result);
+    });
     app.post("/payment", async (req, res) => {
       const payment = req.body;
       const result = await payCollection.insertOne(payment);
@@ -141,6 +162,17 @@ async function run() {
       } else {
         res.send("Something wrong");
       }
+    });
+    app.put("/parts/:id", async (req, res) => {
+      const doc = req.body;
+      const id = req.params.id;
+      const filter = { _id: ObjectId(id) };
+      const updateDoc = {
+        $set: doc,
+      };
+
+      const result = await carPartsCollection.updateOne(filter, updateDoc);
+      res.send(result);
     });
   } finally {
   }
