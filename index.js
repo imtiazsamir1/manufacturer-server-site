@@ -139,6 +139,11 @@ async function run() {
       const result = await ordersCollection.find(query).toArray();
       res.send(result);
     });
+    app.get("/orders", async (req, res) => {
+      const query = {};
+      const result = await ordersCollection.find(query).toArray();
+      res.send(result);
+    });
     app.post("/payment", async (req, res) => {
       const payment = req.body;
       const result = await payCollection.insertOne(payment);
