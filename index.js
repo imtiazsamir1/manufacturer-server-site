@@ -12,6 +12,7 @@ const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.hjhzw.mongodb.net/?retryWrites=true&w=majority`;
 function verifyToken(req, res, next) {
   const authHeader = req.headers.authorization;
+  image.png;
 
   if (!authHeader) {
     return res.status(401).send({ message: "Unauthorized access" });
