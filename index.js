@@ -57,6 +57,17 @@ async function run() {
       const result = await orderCollection.find(query).toArray();
       res.send(result);
     });
+    app.get("/review", async (req, res) => {
+      const query = {};
+      const result = await reviewCollection.find(query).toArray();
+      res.send(result);
+    });
+    app.get("/user", async (req, res) => {
+      const email = req.query.email;
+      const query = { email: email };
+      const result = await userCollection.findOne(query);
+      res.send(result);
+    });
     app.get("/parts", async (req, res) => {
       const query = {};
       const result = await partCollection.find(query).toArray();
@@ -115,7 +126,7 @@ async function run() {
       console.log(result);
       res.send(result);
     });
-    app.put("/user/admin/:email", verifyToken, async (req, res) => {
+    app.put("/user/admin/:email", async (req, res) => {
       const email = req.params.email;
       const requester = req.decoded.email;
       const requesterAcc = await userCollection.findOne({ email: requester });
@@ -132,6 +143,15 @@ async function run() {
         res.status(403).send({ message: "Forbbiden" });
       }
     });
+    // app.get("/user/admin/:email", async (req, res) => {
+    //   const email = req.params.email;
+    //   const filter = { email: email };
+    //   const updateDoc = {
+    //     $set: { role: "admin" },
+    //   };
+    //   const result = await userCollection.updateOne(filter, updateDoc);
+    //   res.send(result);
+    // });
     app.get("/admin/:email", async (req, res) => {
       const email = req.params.email;
       const user = await userCollection.findOne({ email: email });
