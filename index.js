@@ -248,6 +248,10 @@ app.get("/", (req, res) => {
   res.send("Hello World!");
 });
 
+app.get("/hero", (req, res) => {
+  res.send("Hero meets hero");
+});
+
 app.listen(port, () => {
   console.log(`Example app listening on port ${port}`);
 });
