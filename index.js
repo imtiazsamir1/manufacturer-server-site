@@ -12,7 +12,6 @@ const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.hjhzw.mongodb.net/?retryWrites=true&w=majority`;
 function verifyToken(req, res, next) {
   const authHeader = req.headers.authorization;
-  image.png;
 
   if (!authHeader) {
     return res.status(401).send({ message: "Unauthorized access" });
@@ -132,18 +131,14 @@ async function run() {
       console.log(result);
       res.send(result);
     });
-    app.get("/order", verifyToken, async (req, res) => {
+    app.get("/order", async (req, res) => {
       const email = req.query.email;
 
-      const decodedEmail = req.decoded?.email;
+      // const decodedEmail = req.decoded?.email;
 
-      if (decodedEmail === email) {
-        const query = { email: email };
-        const result = await ordersCollection.find(query).toArray();
-        res.send(result);
-      } else {
-        res.status(403).send({ message: "Forbidden" });
-      }
+      const query = { email: email };
+      const result = await ordersCollection.find(query).toArray();
+      res.send(result);
     });
     app.post("/payment", verifyToken, async (req, res) => {
       const payment = req.body;
